@@ -1,0 +1,36 @@
+<launch>
+    <rosparam file="$(find smrobo2019_main_ros)/param/logitech_f710_joy_assign.yaml" command="load" />
+
+    <!-- base controller -->
+    <node pkg="base_controller" type="base_controller" name="base_ctrl" output="screen">
+        <param name="motor_max_acc" value="50.0" />
+        <param name="motor_max_vel" value="80.0" />
+        <param name="invert_x" value="false" />
+        <param name="invert_y" value="false" />
+        <param name="invert_z" value="false" />
+        <remap from="motor0_cmd_vel" to="base/motor0_cmd_vel" />
+        <remap from="motor1_cmd_vel" to="base/motor1_cmd_vel" />
+        <remap from="motor2_cmd_vel" to="base/motor2_cmd_vel" />
+    </node>
+    
+    <include file="$(find navigation)/launch/navigation.launch">
+        <arg name="use_amcl" value="false" />
+        <arg name="use_dummy_odom" value="true" />
+        <arg name="map_file" value="$(find navigation)/map/mr1_map_red.yaml" />
+        <arg name="odom_x_coeff" value="1.0" />
+        <arg name="odom_y_coeff" value="1.0" />
+        <arg name="odom_yaw_coeff" value="1.0" />
+        <arg name="odom_swap_xy" value="false" />
+        <arg name="useless_planner_conf_file" value="$(find navigation)/param/useless_planner_params.yaml" />
+    </include>
+
+    <!-- joy node -->
+    <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <param name="deadzone" value="0.12" />
+    </node>
+
+    <node pkg="smrobo2019_main_ros" type="mr1_main_semiauto" name="main" output="screen" />
+
+    <node pkg="smrobo2019_main_ros" type="mr1_can" name="mr1_can" output="screen" />
+</launch>

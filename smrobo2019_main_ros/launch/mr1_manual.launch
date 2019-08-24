@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <rosparam file="$(find smrobo2019_main_ros)/param/logitech_f710_joy_assign.yaml" command="load" />
+
+    <arg name="use_joy" value="true" />
+    <!-- base controller -->
+    <node pkg="base_controller" type="base_controller" name="base_ctrl" output="screen">
+        <param name="motor_max_acc" value="50.0" />
+        <param name="motor_max_vel" value="60.0" />
+	<param name="wheel_radius" value="0.040" />	
+	<param name="ctrl_freq" value="100" />
+        <param name="invert_x" value="false" />
+        <param name="invert_y" value="false" />
+        <param name="invert_z" value="false" />
+	<param name="controller_absolute" value="true" />
+        <remap from="motor0_cmd_vel" to="base/motor0_cmd_vel" />
+        <remap from="motor1_cmd_vel" to="base/motor1_cmd_vel" />
+        <remap from="motor2_cmd_vel" to="base/motor2_cmd_vel" />
+	<remap from="motor3_cmd_vel" to="base/motor3_cmd_vel" />
+	<remap from="motor0_cmd_pos" to="base/motor0_cmd_pos" />
+	<remap from="motor1_cmd_pos" to="base/motor1_cmd_pos" />
+	<remap from="motor2_cmd_pos" to="base/motor2_cmd_pos" />
+	<remap from="motor3_cmd_pos" to="base/motor3_cmd_pos" />
+    </node>
+    
+    <!-- joy teleop -->
+    <node pkg="base_controller" type="base_teleop_joy" name="base_teleop_joy">
+	<param name="max_lin" value="1.0" />
+	<param name="max_ang" value="M_PI/2" />
+    </node>
+    
+    <!-- joy node -->
+    <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <param name="deadzone" value="0.12" />
+    </node>
+    
+    <node pkg="smrobo2019_main_ros" type="mr1_main_semiauto" name="main" output="screen" />
+    <!-- shutdown controller -->
+    <node pkg="base_controller" type="shutdown_controller_joy" name="shutdown_ctrl" />
+
+    <node name="mr1_can" pkg="smrobo2019_main_ros" type="mr1_can" output="screen" />
+
+    
+    <!-- usb_can -->
+    <node pkg="smrobo2019_main_ros" type="usb_can_node_19" name="usb_can_node_19" respawn="true" output="screen">
+        <param name="port" value="/dev/ttyUSB0" />
+    </node>
+    
+    
+</launch>
